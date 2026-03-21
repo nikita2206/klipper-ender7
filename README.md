@@ -22,30 +22,9 @@ releases automatically.
 
 ### Installation
 
-You will need to flash custom firmware onto the display first. See the
-[DGUS Reloaded wiki](https://github.com/Desuuuu/DGUS-reloaded-Klipper/wiki/Flashing-the-firmware)
-and [firmware releases](https://github.com/Desuuuu/DGUS-reloaded-Klipper/releases).
-
-Then install Klipper from this repo instead of the upstream one — for
-example, after installing Klipper via [KIAUH](https://github.com/dw-0/kiauh):
-
-```bash
-cd ~
-rm -rf klipper
-git clone https://github.com/nikita2206/klipper-ender7.git klipper
-```
-
-Add the following to your `printer.cfg` to enable the display:
-
-```ini
-[t5uid1]
-firmware: dgus_reloaded
-machine_name: Ender 6
-volume: 0
-brightness: 100
-z_min: 0
-z_max: 400
-```
+See the full [Ender 6/7 DGUS Display setup guide](docs/Ender_6_7_DGUS_Display.md)
+for step-by-step instructions covering display firmware flashing, Klipper
+installation, configuration, and calibration.
 
 ---
 
