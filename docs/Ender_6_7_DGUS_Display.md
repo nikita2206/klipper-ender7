@@ -1,7 +1,8 @@
 # Ender 6/7 DGUS Display Setup
 
 This guide covers installing this Klipper fork with DGUS display support
-on a Creality Ender 6 or Ender 7 printer.
+on a Creality Ender 6 or Ender 7 printer. Any Linux host that can run
+Klipper will work (Raspberry Pi, other SBCs, or a regular PC).
 
 ## Prerequisites
 
@@ -12,35 +13,31 @@ Flash the DGUS Reloaded firmware onto your display:
 
 ## Klipper installation
 
-1. Prepare an SD card with Raspberry Pi OS Lite (64-bit) using Raspberry
-   Pi Imager. Set a username/password and enable SSH.
-
-2. Enable SPI and I2C:
-   ```bash
-   sudo raspi-config
-   ```
-
-3. Update the system and install dependencies:
+1. Set up your Linux host with SSH access and install git:
    ```bash
    sudo apt update && sudo apt upgrade -y
    sudo apt install git -y
    sudo shutdown -r now
    ```
 
-4. Install [KIAUH](https://github.com/dw-0/kiauh):
+2. If your host needs SPI/I2C enabled (e.g. for an accelerometer), do so
+   via your board's configuration tool (e.g. `raspi-config` on a
+   Raspberry Pi, `armbian-config` on Armbian).
+
+3. Install [KIAUH](https://github.com/dw-0/kiauh):
    ```bash
    git clone https://github.com/dw-0/kiauh.git
    ./kiauh/kiauh.sh
    ```
    Use KIAUH to install Klipper, then exit.
 
-5. Replace Klipper with this fork:
+4. Replace Klipper with this fork:
    ```bash
    rm -rf ~/klipper
    git clone https://github.com/nikita2206/klipper-ender7.git ~/klipper
    ```
 
-6. Build and flash the MCU firmware:
+5. Build and flash the MCU firmware:
    ```bash
    cd ~/klipper
    make menuconfig
@@ -53,12 +50,12 @@ Flash the DGUS Reloaded firmware onto your display:
    formatted SD card (4096 byte allocation), insert into the printer,
    power on, wait ~1 minute, then power off.
 
-7. Install Moonraker and Fluidd via KIAUH:
+6. Install Moonraker and a web frontend (e.g. Fluidd or Mainsail) via KIAUH:
    ```bash
    ~/kiauh/kiauh.sh
    ```
 
-8. (Optional) Build the host MCU for ADXL345 support:
+7. (Optional) Build the host MCU for accelerometer support:
    ```bash
    cd ~/klipper
    make clean
@@ -66,8 +63,6 @@ Flash the DGUS Reloaded firmware onto your display:
    sudo service klipper stop
    make flash
    sudo service klipper start
-   sudo usermod -a -G tty pi
-   sudo shutdown -r now
    ```
 
 ## Klipper configuration
@@ -87,22 +82,16 @@ z_max: 400
 ### Optional: ADXL345 accelerometer
 
 ```ini
-[mcu rpi]
+[mcu host]
 serial: /tmp/klipper_host_mcu
 
 [adxl345]
-cs_pin: rpi:None
+cs_pin: host:None
 
 [resonance_tester]
 accel_chip: adxl345
 probe_points:
     130, 130, 20
-
-[input_shaper]
-shaper_freq_x: 67.2
-shaper_type_x: ei
-shaper_freq_y: 72.8
-shaper_type_y: mzv
 ```
 
 ### Optional: screws tilt adjust
