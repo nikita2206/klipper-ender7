@@ -6,10 +6,11 @@ Klipper will work (Raspberry Pi, other SBCs, or a regular PC).
 
 ## Prerequisites
 
-Flash the DGUS Reloaded firmware onto your display:
+Flash the DGUS Reloaded firmware onto your display. The firmware and
+flashing instructions are included in this repository:
 
-- [Flashing instructions](https://github.com/Desuuuu/DGUS-reloaded-Klipper/wiki/Flashing-the-firmware)
-- [Firmware releases](https://github.com/Desuuuu/DGUS-reloaded-Klipper/releases)
+- [Display flashing guide](DGUS_Display_Flashing.md)
+- Firmware files: [`dwin_custom/ender7/DWIN_SET/`](../dwin_custom/ender7/DWIN_SET/)
 
 ## Klipper installation
 

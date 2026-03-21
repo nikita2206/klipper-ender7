@@ -14,7 +14,8 @@ releases automatically.
 - **DGUS display support** — Desuuuu's t5uid1 module that drives the stock
   DWIN DGUS touchscreen over serial. Adds MCU-side UART handling (STM32,
   AVR, LPC176X, ATSAMD) and a `[t5uid1]` Klipper config section for
-  display control including pages, menus, and touchscreen input.
+  display control including pages, menus, and touchscreen input. The
+  display firmware is included in [`dwin_custom/ender7/`](dwin_custom/ender7/).
 - **Probe compatibility fix** — updates the t5uid1 code to use the current
   Klipper probe API (`self.probe.multi != "OFF"`) instead of the removed
   `multi_probe_pending` attribute, preventing crashes during bed mesh
