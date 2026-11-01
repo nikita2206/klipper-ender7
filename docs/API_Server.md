@@ -380,6 +380,27 @@ and might later produce asynchronous messages such as:
 The "header" field in the initial query response is used to describe
 the fields found in later "data" responses.
 
+### load_cell_probe/dump_taps
+
+This endpoint is used to subscribe to details of probing "tap" events.
+Using this endpoint may increase Klipper's system load.
+
+A request may look like:
+`{"id": 123, "method":"load_cell/dump_force",
+"params": {"sensor": "load_cell", "response_template": {}}}`
+and might return:
+`{"id": 123,"result":{"header":["probe_tap_event"]}}`
+and might later produce asynchronous messages such as:
+```
+{"params":{"tap":'{
+   "time": [118032.28039, 118032.2834, ...],
+   "force": [-459.4213119680034, -458.1640702543264, ...],
+}}}
+```
+
+This data can be used to render:
+* The time/force graph
+
 ### pause_resume/cancel
 
 This endpoint is similar to running the "PRINT_CANCEL" G-Code command.
@@ -539,7 +560,7 @@ might return:
 
 The `dump_mesh` endpoint takes one optional parameter, `mesh_args`.
 This parameter must be an object, where the keys and values are
-parameters available to [BED_MESH_CALIBRATE](#bed_mesh_calibrate).
+parameters available to [BED_MESH_CALIBRATE](G-Codes.md#bed_mesh_calibrate).
 This will update the mesh configuration and probe points using the
 supplied parameters prior to returning the result.   It is recommended
 to omit mesh parameters unless it is desired to visualize the probe points

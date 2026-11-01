@@ -346,8 +346,10 @@ class T5UID1:
         self._t5uid1_write_cmd = self.mcu.lookup_command(
             "t5uid1_write oid=%c command=%c data=%*s", cq=cmd_queue)
 
-        self.mcu.register_response(self._handle_t5uid1_received,
-                                   "t5uid1_received")
+        # The firmware's message has no oid, so none is passed here.
+        self.mcu.register_serial_response(
+            self._handle_t5uid1_received,
+            "t5uid1_received command=%c data=%*s")
 
     def _handle_ready(self):
         self.toolhead = self.printer.lookup_object('toolhead')
@@ -765,7 +767,13 @@ class T5UID1:
     def probed_matrix(self):
         if self.bed_mesh is None:
             return 0
-        count = len(self.bed_mesh.bmc.probe_helper.results)
+        # Klipper keeps points probed so far in the probe's session helper
+        # (automatic probing; emptied when the session ends) or in
+        # bed_mesh's ProbePointsHelper (manual probing).
+        helper = self.bed_mesh.bmc.probe_mgr.probe_helper
+        count = len(helper.manual_results)
+        if self.probe is not None:
+            count = max(count, len(self.probe.probe_session.results))
         points_map = [ 0,  1,  2,  3,  4,
                        9,  8,  7,  6,  5,
                       10, 11, 12, 13, 14,
@@ -863,7 +871,11 @@ class T5UID1:
                 or idle_time < 1.0
                 or self.gcode.get_mutex().test()):
             return True
-        return (self.probe is not None and self.probe.multi != "OFF")
+        # Klipper keeps the probing-session state on the probe's endstop
+        # object (probe.py/bltouch.py "mcu_probe"); probes without it are
+        # never in a multi-probe session
+        mcu_probe = getattr(self.probe, 'mcu_probe', None)
+        return getattr(mcu_probe, 'multi', 'OFF') != 'OFF'
 
     def cmd_DGUS_ABORT_PAGE_SWITCH(self, gcmd):
         pass
