@@ -1,0 +1,86 @@
+name: Sync upstream Klipper releases
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # every Monday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-and-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream tags
+        run: |
+          git remote add upstream https://github.com/Klipper3d/klipper.git
+          git fetch upstream --tags
+
+      - name: Determine latest upstream release
+        id: release
+        run: |
+          LATEST_TAG=$(git tag --sort=-version:refname -l 'v*' | head -1)
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+          # Check if this tag is already an ancestor of HEAD (i.e. already merged)
+          if git merge-base --is-ancestor "$LATEST_TAG" HEAD; then
+            echo "already_merged=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_merged=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for existing PR
+        if: steps.release.outputs.already_merged == 'false'
+        id: existing_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="upstream-sync/${{ steps.release.outputs.tag }}"
+          PR_COUNT=$(gh pr list --head "$BRANCH" --state open --json number -q 'length')
+          if [ "$PR_COUNT" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create merge branch and PR
+        if: steps.release.outputs.already_merged == 'false' && steps.existing_pr.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          BRANCH="upstream-sync/$TAG"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+
+          # Attempt the merge; if there are conflicts, commit the conflict markers
+          # so the user can resolve them in the PR
+          if git merge "$TAG" --no-edit; then
+            echo "Merge completed cleanly."
+          else
+            echo "Merge has conflicts — committing conflict markers for manual resolution."
+            git add -A
+            git commit --no-edit -m "Merge upstream $TAG (conflicts need resolution)"
+          fi
+
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Merge upstream Klipper $TAG" \
+            --body "$(cat <<EOF
+          Automated PR to merge upstream Klipper release [\`$TAG\`](https://github.com/Klipper3d/klipper/releases/tag/$TAG) into this fork.
+
+          If the merge was clean, this is ready to merge. If there are conflicts, they need to be resolved manually.
+          EOF
+          )" \
+            --base master \
+            --head "$BRANCH"

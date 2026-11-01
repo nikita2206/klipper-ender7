@@ -132,4 +132,6 @@ config LPC_CANBUS_P2_7_P2_8
     bool
     default y if LPC_MMENU_CANBUS_P2_7_P2_8 || LPC_CMENU_CANBUS_P2_7_P2_8
 
+source "src/lpc176x/t5uid1/Kconfig"
+
 endif
