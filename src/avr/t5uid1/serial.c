@@ -8,6 +8,7 @@
 #include "autoconf.h" // CONFIG_T5UID1_SERIAL_PORT
 #include "board/t5uid1/serial_irq.h" // t5uid1_rx_byte
 #include "command.h" // DECL_CONSTANT_STR
+#include "sched.h" // shutdown
 
 #if CONFIG_SERIAL && CONFIG_T5UID1_SERIAL_PORT == CONFIG_SERIAL_PORT
   #error "The serial port selected for the T5UID1 screen is already used"
@@ -62,7 +63,18 @@ t5uid1_init(uint32_t baud)
 {
     UCSRxA = CONFIG_SERIAL_BAUD_U2X ? (1<<U2Xx) : 0;
     uint32_t cm = CONFIG_SERIAL_BAUD_U2X ? 8 : 16;
-    UBRRx = DIV_ROUND_CLOSEST(CONFIG_CLOCK_FREQ, cm * baud) - 1UL;
+    uint32_t step = cm * baud;
+    if (!step)
+        shutdown("Invalid t5uid1 baud");
+    // Divide by repeated subtraction (a few steps, once at init): the baud
+    // comes from the host, and a runtime divide would pull in avr-gcc's
+    // software divide (see scripts/check-software-div.sh)
+    uint32_t rem = CONFIG_CLOCK_FREQ + step / 2, ubrr = 0;
+    while (rem >= step) {
+        rem -= step;
+        ubrr++;
+    }
+    UBRRx = ubrr - 1UL;
     UCSRxC = (1<<UCSZx1) | (1<<UCSZx0);
     UCSRxB = (1<<RXENx) | (1<<TXENx) | (1<<RXCIEx) | (1<<UDRIEx);
 }
