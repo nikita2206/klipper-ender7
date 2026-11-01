@@ -871,7 +871,11 @@ class T5UID1:
                 or idle_time < 1.0
                 or self.gcode.get_mutex().test()):
             return True
-        return (self.probe is not None and self.probe.multi != "OFF")
+        # Klipper keeps the probing-session state on the probe's endstop
+        # object (probe.py/bltouch.py "mcu_probe"); probes without it are
+        # never in a multi-probe session
+        mcu_probe = getattr(self.probe, 'mcu_probe', None)
+        return getattr(mcu_probe, 'multi', 'OFF') != 'OFF'
 
     def cmd_DGUS_ABORT_PAGE_SWITCH(self, gcmd):
         pass
