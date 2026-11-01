@@ -767,7 +767,13 @@ class T5UID1:
     def probed_matrix(self):
         if self.bed_mesh is None:
             return 0
-        count = len(self.bed_mesh.bmc.probe_helper.results)
+        # Klipper keeps points probed so far in the probe's session helper
+        # (automatic probing; emptied when the session ends) or in
+        # bed_mesh's ProbePointsHelper (manual probing).
+        helper = self.bed_mesh.bmc.probe_mgr.probe_helper
+        count = len(helper.manual_results)
+        if self.probe is not None:
+            count = max(count, len(self.probe.probe_session.results))
         points_map = [ 0,  1,  2,  3,  4,
                        9,  8,  7,  6,  5,
                       10, 11, 12, 13, 14,
