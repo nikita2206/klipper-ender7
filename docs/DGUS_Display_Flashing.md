@@ -7,6 +7,10 @@ The firmware files are included in this repository under
 [`dwin_custom/ender7/DWIN_SET/`](../dwin_custom/ender7/DWIN_SET/)
 (from [DGUS Reloaded v1.0.2](https://github.com/Desuuuu/DGUS-reloaded-Klipper/releases/tag/1.0.2)).
 
+These files are for the T5UID1 chip. Screens with a DWIN T5L chip need
+other files and can be updated over USB: see the
+[T5L display guide](Ender_6_7_T5L_Display.md).
+
 ## Steps
 
 1. Format a micro SD card (**8 GB or smaller**) as **FAT32** with

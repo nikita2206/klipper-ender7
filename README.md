@@ -6,8 +6,8 @@ applied on top. These patches add support for the DWIN T5UID1 (DGUS)
 touchscreen used in Creality Ender 6 and Ender 7 printers, allowing the
 stock display to work with Klipper instead of requiring a replacement.
 
-A GitHub Actions workflow keeps this fork up to date with upstream Klipper
-releases automatically.
+A GitHub Actions workflow opens a pull request merging each new upstream
+Klipper release into this fork.
 
 ### Fork-specific patches
 
@@ -16,16 +16,20 @@ releases automatically.
   AVR, LPC176X, ATSAMD) and a `[t5uid1]` Klipper config section for
   display control including pages, menus, and touchscreen input. The
   display firmware is included in [`dwin_custom/ender7/`](dwin_custom/ender7/).
-- **Probe compatibility fix** — updates the t5uid1 code to use the current
-  Klipper probe API (`self.probe.multi != "OFF"`) instead of the removed
-  `multi_probe_pending` attribute, preventing crashes during bed mesh
-  probing with the display active.
+- **T5L screens** — some Ender 6/7 screens have the newer DWIN T5L chip.
+  [`scripts/t5l_screen/`](scripts/t5l_screen/) builds DGUS Reloaded for it,
+  and the `[t5l_flash]` module writes screen files over the printer's USB,
+  no SD card needed: [T5L display guide](docs/Ender_6_7_T5L_Display.md).
+- **Current Klipper internals** — the display code was re-applied onto
+  upstream Klipper in 2026-11 and follows renamed internals (MCU serial
+  responses, probe session state, probing progress).
 
 ### Installation
 
 See the full [Ender 6/7 DGUS Display setup guide](docs/Ender_6_7_DGUS_Display.md)
 for step-by-step instructions covering display firmware flashing, Klipper
-installation, configuration, and calibration.
+installation, configuration, and calibration. Screens with a T5L chip:
+[T5L display guide](docs/Ender_6_7_T5L_Display.md).
 
 ---
 

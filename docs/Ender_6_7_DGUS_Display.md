@@ -12,6 +12,9 @@ flashing instructions are included in this repository:
 - [Display flashing guide](DGUS_Display_Flashing.md)
 - Firmware files: [`dwin_custom/ender7/DWIN_SET/`](../dwin_custom/ender7/DWIN_SET/)
 
+Screens with a DWIN T5L chip (instead of T5UID1) need other files: see the
+[T5L display guide](Ender_6_7_T5L_Display.md).
+
 ## Klipper installation
 
 1. Set up your Linux host with SSH access and install git:
